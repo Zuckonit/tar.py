@@ -15,7 +15,7 @@ from tarfile import TarFileCompat, TAR_PLAIN, TAR_GZIPPED
 
 class Tar(object):
     """
-    compress files as tar
+    compress files as tar, tgz, zip
     """
     suffix = ('TAR', 'tar')
     comp_map = {
@@ -24,8 +24,7 @@ class Tar(object):
         'bz2': TAR_GZIPPED,
         'zip': ''
     }
-    def __init__(self, dst_file, files, mode='r', password=None):
-        self.__files = files
+    def __init__(self, dst_file, mode='w', password=None):
         self.__dst_file = dst_file
         __suffix = self.suffix
         __comp = self.comp_map.get(__suffix)
@@ -45,13 +44,24 @@ class Tar(object):
         if tmp in self.comp_map.keys():
             return tmp
         return 'tar'
+    
+    @property
+    def namelist(self):
+        return self.__tar.namelist()
+    
+    @property
+    def infolist(self):
+        return self.__tar.infolist()
+    
+    def getinfo(self, filename):
+        return self.__tar.getinfo(filename)
 
     @property
     def dstfile(self):
         return self.__dst_file
     
-    def compress(self):
-        for filename in self.__files:
+    def compress(self, files):
+        for filename in files:
             if not filename or not osp.isfile(filename):
                 continue
             self.__tar.write(filename, arcname=osp.basename(filename))
